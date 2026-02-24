@@ -19,5 +19,8 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Make CI script executable
+        run: chmod +x ./scripts/ci.sh
+
       - name: Run CI Script
         run: ./scripts/ci.sh
