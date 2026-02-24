@@ -4,39 +4,39 @@ on:
   push:
     branches: [dev]
 
-  permissions:
-    id-token: write
-    contents: read
+permissions:
+  id-token: write
+  contents: read
 
-  jobs:
-    deploy:
-      runs-on: ubuntu-latest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-      env:
-        AWS_REGION: ap-southeast-1
-        DEV_BUCKET: demo-cicd-aws-dev-jaesma
-        DEV_CF_DIST_ID: E2IO03SVQAK90E
+    env:
+      AWS_REGION: ap-southeast-1
+      DEV_BUCKET: demo-cicd-aws-dev-jaesma
+      DEV_CF_DIST_ID: E2IO03SVQAK90E
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-        - name: Setup Node
-          uses: actions/setup-node@v4
-          with:
-            node-version: 20
-            cache: npm
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
 
-        - name: Configure AWS Credentials (OIDC)
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            role-to-assume: arn:aws:iam::330799290851:role/deploy-dev-s3-cloudfront
-            aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::330799290851:role/deploy-dev-s3-cloudfront
+          aws-region: ${{ env.AWS_REGION }}
 
-        - name: Deploy to S3 (DEV)
-          run: |
-            aws s3 sync dist s3://${{ env.DEV_BUCKET }} --delete
+      - name: Deploy to S3 (DEV)
+        run: |
+          aws s3 sync dist s3://${{ env.DEV_BUCKET }} --delete
 
-        - name: Invalidate CloudFront Cache (DEV)
-          run: |
-            aws cloudfront create-invalidation --distribution-id ${{ env.DEV_CF_DIST_ID }} --paths "/*"
+      - name: Invalidate CloudFront Cache (DEV)
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ env.DEV_CF_DIST_ID }} --paths "/*"
